@@ -1,6 +1,6 @@
 {
-  "name": "prisma-debug",
-  "version": "0.0.0-dev",
+  "name": "prisma-debug-logs",
+  "version": "0.0.1",
   "description": "Prisma debug logs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
