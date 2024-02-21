@@ -13,22 +13,30 @@ export default class ConsolePrinter implements OperationPrinter {
   }
 
   public async printOperation(operation: Operation): Promise<void> {
-    const statementLogs = await Promise.all(operation.statements.map(s => this.printStatement(s)));
+    try {
+      const statementLogs = await Promise.all(operation.statements.map(s => this.printStatement(s)));
 
-    this.log(
-      Console.FgGreen + Console.Break +
-      `${operation.duration()} ms - ${operation.model}.${operation.operation}` + Console.Break +
-      JSON.stringify(operation.args, null, 2) +
-      Console.EmptyLine + Console.Reset +
-      statementLogs.join('\n\n'),
-    );
+      this.log(
+        Console.FgGreen + Console.Break +
+        `${operation.duration()} ms - ${operation.model}.${operation.operation}` + Console.Break +
+        JSON.stringify(operation.args, null, 2) +
+        Console.EmptyLine + Console.Reset +
+        statementLogs.join('\n\n'),
+      );
+    } catch (e: any) {
+      this.log('Error: ' + e?.message);
+    }
   }
 
   protected async printStatement(statement: Statement): Promise<string> {
-    const query = this.formatQuery(statement);
+    try {
+      const query = this.formatQuery(statement);
 
-    return Console.FgRed + `${statement.duration} ms` + Console.Reset
-      + Console.Break + query;
+      return Console.FgRed + `${statement.duration} ms` + Console.Reset
+        + Console.Break + query;
+    } catch (e: any) {
+      return 'Error: ' + e?.message;
+    }
   }
 
   private formatQuery(statement: Statement): string {

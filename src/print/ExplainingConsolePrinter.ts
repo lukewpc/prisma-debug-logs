@@ -12,12 +12,16 @@ export default class ExplainingConsolePrinter extends ConsolePrinter {
   }
 
   protected async printStatement(statement: Statement): Promise<string> {
-    const queryPlan = await this.explainer.explainStatement(statement);
+    try {
+      const queryPlan = await this.explainer.explainStatement(statement);
 
-    return (
-      await super.printStatement(statement)
-      + Console.Break + Console.FgMagenta
-      + queryPlan + Console.Reset
-    );
+      return (
+          await super.printStatement(statement)
+          + Console.Break + Console.FgMagenta
+          + queryPlan + Console.Reset
+      );
+    } catch (e: any) {
+      return 'Error: ' + e?.message;
+    }
   }
 }
