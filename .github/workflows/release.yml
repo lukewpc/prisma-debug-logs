@@ -16,16 +16,13 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: lts/*
+          registry-url: 'https://registry.npmjs.org'
       - name: Install dependencies
         run: npm ci
       - name: Build
         run: npm run build
 #      - name: Test
 #        run: npm test
-      - name: Release
+      - run: npm publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npx semantic-release
-#      - name: Upload Code Coverage
-#        uses: codecov/codecov-action@v3.1.0
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
