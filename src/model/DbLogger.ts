@@ -1,46 +1,29 @@
-import OperationEvent from './Operation';
-import RequestPrinter from '../print/RequestPrinter';
-import Request from './Request';
+import Operation, { OperationEvent } from './Operation';
 import StatementEvent from './Statement';
 import SyncManager from '../sync/SyncManager';
+import TimedEvent from '../sync/TimedEvent';
+import OperationPrinter from '../print/OperationPrinter';
 
-export default class DbLogger {
-  private requestMux = new SyncManager<Request>(false);
+export default class DbLogger extends TimedEvent {
+  public operationMux = new SyncManager<Operation>(true);
 
-  constructor(private printer: RequestPrinter) {
-  }
-
-  public async startRequest() {
-    await this.requestMux.start(new Request());
-  }
-
-  public async endRequest() {
-    if (!this.requestMux.current) {
-      throw new Error('Request not started');
-    }
-    this.requestMux.endTimer();
-    await this.printer.printRequest(this.requestMux.current);
-    this.requestMux.release();
+  constructor(private printer: OperationPrinter) {
+    super()
   }
 
   public async startOperation(event: OperationEvent) {
-    if (!this.requestMux.current) {
-      throw new Error('Request not started');
-    }
-    await this.requestMux.current.startOperation(event);
+    await this.operationMux.start(new Operation(event));
   }
 
-  public endOperation() {
-    if (!this.requestMux.current) {
-      throw new Error('Request not started');
-    }
-    this.requestMux.current.endOperation();
+  public async endOperation() {
+    if (!this.operationMux.current) throw new Error('Operation not started');
+    this.operationMux.endTimer();
+    await this.printer.printOperation(this.operationMux.current);
+    this.operationMux.release();
   }
 
   public addStatement(s: StatementEvent) {
-    if (!this.requestMux.current) {
-      throw new Error('Request not started');
-    }
-    this.requestMux.current.addStatement(s);
+    if (!this.operationMux.current) throw new Error('Operation not started');
+    this.operationMux.current.addStatement(s);
   }
 }
